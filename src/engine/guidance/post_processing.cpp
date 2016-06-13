@@ -411,9 +411,16 @@ void collapseTurnAt(std::vector<RouteStep> &steps,
     const auto &one_back_step = steps[one_back_index];
 
     std::cout << "Steps: " << step_index << " " << one_back_index << std::endl;
+    //This function assumes driving on the right hand side of the streat
     const auto bearingsAreReversed = [](const double bearing_in, const double bearing_out) {
         // Nearly perfectly reversed angles have a difference close to 180 degrees (straight)
-        return angularDeviation(bearing_in, bearing_out) > 170;
+        const double left_turn_angle = [&]()
+        {
+            if( 0 <= bearing_out && bearing_out <= bearing_in )
+                return bearing_in - bearing_out;
+            return bearing_in + 360 - bearing_out;
+        }();
+        return angularDeviation(left_turn_angle,180) <= 35;
     };
 
     BOOST_ASSERT(!one_back_step.intersections.empty() && !current_step.intersections.empty());
